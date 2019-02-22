@@ -40,6 +40,7 @@
     "agent"
   ],
   "dependencies": {
+    "agentkeepalive": "^4.0.2",
     "cacheable-lookup": "^0.1.0",
     "got": "^9.6.0"
   },
@@ -71,7 +72,8 @@
       "sourceType": "module"
     },
     "rules": {
-      "@typescript-eslint/explicit-function-return-type": "off"
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/no-explicit-any": "off"
     }
   },
   "prettier": {
