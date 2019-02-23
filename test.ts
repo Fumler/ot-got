@@ -1,8 +1,8 @@
-import test, { after } from 'ava'
+import test from 'ava'
 import nock from 'nock'
 import { MockTracer, initGlobalTracer } from 'opentracing'
 import sinon from 'sinon'
-import otGot from './dist/src/index'
+import otGot from './src/index'
 
 test.serial('has a body with parent span and globaltracer', async t => {
   const scope = nock('https://whg.no')
@@ -82,7 +82,8 @@ test('has a child span', async t => {
     },
   })
 
-  t.is(tracer._spans.length, 2)
+  const report = tracer.report()
+  t.is(report.spans.length, 2)
 
   t.truthy(scope.isDone())
 })
@@ -101,14 +102,16 @@ test('logs timings', async t => {
     },
   })
 
-  t.is(tracer._spans[1]._logs[0].fields.body, undefined)
-  t.is(tracer._spans[1]._logs[1].fields.event, 'start')
-  t.is(tracer._spans[1]._logs[2].fields.event, 'socket')
-  t.is(tracer._spans[1]._logs[3].fields.event, 'lookup')
-  t.is(tracer._spans[1]._logs[4].fields.event, 'connect')
-  t.is(tracer._spans[1]._logs[5].fields.event, 'upload')
-  t.is(tracer._spans[1]._logs[6].fields.event, 'response')
-  t.is(tracer._spans[1]._logs[7].fields.event, 'end')
+  const report = tracer.report()
+
+  t.is(report.spans[1]['_logs'][0].fields.body, undefined)
+  t.is(report.spans[1]['_logs'][1].fields.event, 'start')
+  t.is(report.spans[1]['_logs'][2].fields.event, 'socket')
+  t.is(report.spans[1]['_logs'][3].fields.event, 'lookup')
+  t.is(report.spans[1]['_logs'][4].fields.event, 'connect')
+  t.is(report.spans[1]['_logs'][5].fields.event, 'upload')
+  t.is(report.spans[1]['_logs'][6].fields.event, 'response')
+  t.is(report.spans[1]['_logs'][7].fields.event, 'end')
 
   t.truthy(scope.isDone())
 })
@@ -129,7 +132,8 @@ test('logs body', async t => {
     },
   })
 
-  t.is(tracer._spans[1]._logs[0].fields.body, 'This is a body.')
+  const report = tracer.report()
+  t.is(report.spans[1]['_logs'][0].fields.body, 'This is a body.')
 
   t.truthy(scope.isDone())
 })
@@ -151,9 +155,10 @@ test('logs retries', async t => {
       retry: 2,
     }),
   )
-
+  const report = tracer.report()
   let retries = 0
-  tracer._spans[1]._logs.forEach(log => {
+
+  report.spans[1]['_logs'].forEach(log => {
     Object.keys(log.fields).forEach(key => {
       if (key === 'http.retry_count') retries += 1
     })
@@ -177,7 +182,9 @@ test('does not finish parent span', async t => {
     },
   })
 
-  t.is(tracer._spans[0]._finishMs, 0)
+  const report = tracer.report()
+
+  t.is(report.spans[0]._finishMs, 0)
 
   t.truthy(scope.isDone())
 })
@@ -197,7 +204,7 @@ test('finishes parent span', async t => {
     },
   })
 
-  t.not(tracer._spans[0]._finishMs, 0)
+  t.not(tracer['_spans'][0]._finishMs, 0)
 
   t.truthy(scope.isDone())
 })
@@ -220,7 +227,7 @@ test('finishes parent span if error', async t => {
     }),
   )
 
-  t.not(tracer._spans[0]._finishMs, 0)
+  t.not(tracer['_spans'][0]._finishMs, 0)
 
   t.truthy(scope.isDone())
 })
