@@ -7,13 +7,13 @@ Copied then adapted for [opentracing](https://opentracing.io/) from [gl-got](htt
 ## Install
 
 ```
-$ npm install --save gl-got
+$ npm install --save ot-got
 ```
 
 or
 
 ```
-$ yarn
+$ yarn add ot-got
 ```
 
 
