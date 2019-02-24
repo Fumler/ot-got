@@ -1,6 +1,6 @@
 import test from 'ava'
 import nock from 'nock'
-import { MockTracer, initGlobalTracer } from 'opentracing'
+import { Tags, MockTracer, initGlobalTracer } from 'opentracing'
 import sinon from 'sinon'
 import otGot from './src/index'
 
@@ -255,6 +255,65 @@ test('inject headers', async t => {
   })
 
   t.is(reqHeaders.trace, 'HTTP GET')
+
+  t.truthy(scope.isDone())
+})
+
+test('sets tags for successfull request', async t => {
+  const scope = nock('https://whg.no')
+    .post('/')
+    .reply(200, 'OK')
+
+  const tracer = new MockTracer()
+  const parent = tracer.startSpan('parent_span')
+  await otGot('https://whg.no', {
+    method: 'POST',
+    body: 'This is a body.',
+    tracingOptions: {
+      parentSpan: parent,
+      tracer,
+    },
+  })
+
+  const report = tracer.report()
+  const tags = report.spans[1].tags()
+
+  t.is(tags[Tags.SPAN_KIND], Tags.SPAN_KIND_RPC_CLIENT)
+  t.truthy(tags[Tags.HTTP_URL])
+  t.truthy(tags[Tags.HTTP_METHOD])
+  t.is(tags[Tags.COMPONENT], 'ot-got')
+  t.is(tags[Tags.HTTP_STATUS_CODE], 200)
+
+  t.truthy(scope.isDone())
+})
+
+test('sets tags for failed request', async t => {
+  const scope = nock('https://whg.no')
+    .get('/tags')
+    .reply(500, 'Internal Server Error')
+
+  const tracer = new MockTracer()
+  const parent = tracer.startSpan('parent_span')
+  await t.throwsAsync(
+    otGot('https://whg.no/tags', {
+      method: 'GET',
+      tracingOptions: {
+        parentSpan: parent,
+        tracer,
+      },
+      retry: 0,
+    }),
+  )
+
+  const report = tracer.report()
+  const tags = report.spans[1].tags()
+
+  t.is(tags[Tags.SPAN_KIND], Tags.SPAN_KIND_RPC_CLIENT)
+  t.truthy(tags[Tags.HTTP_URL])
+  t.truthy(tags[Tags.HTTP_METHOD])
+  t.is(tags[Tags.COMPONENT], 'ot-got')
+  t.is(tags[Tags.HTTP_STATUS_CODE], 500)
+  t.is(tags[Tags.ERROR], true)
 
   t.truthy(scope.isDone())
 })
