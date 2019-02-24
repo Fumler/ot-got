@@ -3,6 +3,10 @@
 > Convenience wrapper for [`got`](https://github.com/sindresorhus/got) to that adds [opentracing](https://opentracing.io/) spans to the request.
 
 Copied then adapted for [opentracing](https://opentracing.io/) from [gl-got](https://github.com/singapore/gl-got)
+Assumes you already use [opentracing-javascript](https://github.com/opentracing/opentracing-javascript) in your project.
+
+## Screenshot
+[![Example trace with Jaeger](./screenshot.png)](https://raw.githubusercontent.com/Fumler/ot-got/master/screenshot.png)
 
 ## Install
 
