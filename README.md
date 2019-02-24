@@ -21,7 +21,7 @@ $ yarn add ot-got
 This package can be used like you would use normal [`got`](https://github.com/sindresorhus/got) with the exception of if you want to trace the requests, you must add a config, like so:
 
 ```js
-const { otGot } = require('ot-got');
+const otGot = require('ot-got');
 
 otGot('https://your-microservice.io', {
   tracingOptions: {
