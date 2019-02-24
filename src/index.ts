@@ -2,7 +2,6 @@ import got, { mergeOptions } from 'got'
 import { globalTracer, Tags, Span, SpanOptions, Tracer, FORMAT_HTTP_HEADERS } from 'opentracing'
 import CacheableLookup from 'cacheable-lookup'
 import HttpAgent, { HttpsAgent, HttpOptions, HttpsOptions } from 'agentkeepalive'
-import pkg from '../package.json'
 
 interface Options {
   tracingOptions?: TracingOptions
@@ -154,7 +153,7 @@ const otGot = (url: string, opts: Options = {}) => {
         [Tags.SPAN_KIND]: Tags.SPAN_KIND_RPC_CLIENT,
         [Tags.HTTP_URL]: url,
         [Tags.HTTP_METHOD]: method,
-        [Tags.COMPONENT]: `${pkg.name} v${pkg.version}`,
+        [Tags.COMPONENT]: `ot-got`,
       },
     }
     // Create a new span which looks like this: `HTTP POST`
