@@ -5,10 +5,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
     "esModuleInterop": true,
-    "declaration": true,
-    "sourceMap": true,
     "stripInternal": true,
   },
   "include": ["src"]
