@@ -59,15 +59,15 @@ const logTimings = (span: Span, timings: any) => {
  * Logs information about an error to the given span in opentracing
  * This function does NOT finish the span, so make sure to call `span.finish()` after using this
  */
-export const logError = (span: Span, error: any) => {
-  const { stack, message, name, statusCode } = error
+const logError = (span: Span, error: any) => {
+  const { stack, message, name, response } = error
   span.setTag(Tags.ERROR, true)
   // Since this is an error, we want to prioritize sending this trace (in cases where you only sameple X% of traces)
   span.setTag(Tags.SAMPLING_PRIORITY, 1)
 
   // If we got the status code from got, we set the tag
-  if (statusCode) {
-    span.setTag(Tags.HTTP_STATUS_CODE, statusCode)
+  if (response && response.statusCode) {
+    span.setTag(Tags.HTTP_STATUS_CODE, response.statusCode)
   }
 
   // Log information about the error to the span
@@ -149,15 +149,16 @@ const otGot = (url: string, opts: Options = {}) => {
 
     const spanOptions: SpanOptions = {
       childOf: parentSpan,
-      tags: {
-        [Tags.SPAN_KIND]: Tags.SPAN_KIND_RPC_CLIENT,
-        [Tags.HTTP_URL]: url,
-        [Tags.HTTP_METHOD]: method,
-        [Tags.COMPONENT]: `ot-got`,
-      },
     }
     // Create a new span which looks like this: `HTTP POST`
     const span: Span = tracer.startSpan(`HTTP ${method}`, spanOptions)
+    // Set the tags here instead of in `startSpan` so we can use them in tests
+    span.addTags({
+      [Tags.SPAN_KIND]: Tags.SPAN_KIND_RPC_CLIENT,
+      [Tags.HTTP_URL]: url,
+      [Tags.HTTP_METHOD]: method,
+      [Tags.COMPONENT]: `ot-got`,
+    })
     // Log the request body
     span.log({
       body,
@@ -179,6 +180,9 @@ const otGot = (url: string, opts: Options = {}) => {
       // Get the timings and log them to the span
       const { timings } = res
       logTimings(opts.tracingOptions.span, timings)
+
+      // Set the status code as a tag
+      opts.tracingOptions.span.setTag(Tags.HTTP_STATUS_CODE, res.statusCode)
 
       // In most cases you do not want to close the span here because you do it yourself
       // E.g. if the parent span comes from your express handler, you are probably closing the span yourself on `res.on('close')`
