@@ -12,11 +12,11 @@
     "prepublishOnly": "npm run build"
   },
   "description": "Convenience wrapper for got to add opentracing spans to requests",
-  "main": "dist/src",
+  "main": "dist",
   "files": [
-    "dist/src"
+    "dist"
   ],
-  "types": "dist/src",
+  "types": "dist",
   "repository": "https://github.com/Fumler/ot-got.git",
   "author": "Fredrik Pettersen <fredrik@whg.no>",
   "license": "MIT",
