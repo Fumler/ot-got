@@ -208,4 +208,4 @@ const otGot = (url: string, opts: Options = {}) => {
     })
 }
 
-export default otGot
+export = otGot
