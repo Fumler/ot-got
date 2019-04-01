@@ -70,8 +70,18 @@ const logError = (span: Span, error: any) => {
     span.setTag(Tags.HTTP_STATUS_CODE, response.statusCode)
   }
 
+  // Extra debug data for when we get a TimeoutError
+  if (name === 'TimeoutError') {
+    span.log({
+      event: name,
+      url: error.url,
+      gotOptions: error.gotOptions,
+      eventObject: error.event,
+    })
+  }
+
   // Log information about the error to the span
-  // Following the semantic conventions of opentracing (https://github.com/opentracing/specification/blob/master/semantic_conventions.md#log-fields-table)
+  // Following mostly the semantic conventions of opentracing (https://github.com/opentracing/specification/blob/master/semantic_conventions.md#log-fields-table)
   // but since the error object is pretty custom in this case, we do not set `error.object` in fear of circular json
   span.log({
     event: 'error',
@@ -195,8 +205,12 @@ const otGot = (url: string, opts: Options = {}) => {
     })
     .catch(err => {
       // Thanks to got, we get the response in the error, let's log the timings if we have them
-      if (err.response && err.response.timings) {
-        logTimings(opts.tracingOptions.span, err.response.timings)
+      if ((err.response && err.response.timings) || err.timings) {
+        if (err.timings) {
+          logTimings(opts.tracingOptions.span, err.timings)
+        } else {
+          logTimings(opts.tracingOptions.span, err.response.timings)
+        }
       }
 
       logError(opts.tracingOptions.span, err)
