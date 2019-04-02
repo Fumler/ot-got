@@ -43,7 +43,7 @@
   ],
   "dependencies": {
     "agentkeepalive": "^4.0.2",
-    "cacheable-lookup": "^0.1.0",
+    "cacheable-lookup": "^0.2.1",
     "got": "^9.6.0"
   },
   "devDependencies": {

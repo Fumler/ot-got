@@ -935,10 +935,10 @@ cache-base@^1.0.1:
     union-value "^1.0.0"
     unset-value "^1.0.0"
 
-cacheable-lookup@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/cacheable-lookup/-/cacheable-lookup-0.1.0.tgz#d7d1696bbc3c31159586b512542ae25e636a1cd3"
-  integrity sha512-0aJ4Iv15HDQNxMBDmGpQYZeQSRmfbWdXFk5EsPxChQTLDlqABt/c5eJN8kOXevfxZGPfE1glKeaLId7wAQ0EMw==
+cacheable-lookup@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/cacheable-lookup/-/cacheable-lookup-0.2.1.tgz#f474ae2c686667d7ea08c43409ad31b2b31b26c2"
+  integrity sha512-BQ8MRjxJASEq2q+w0SusPU3B054gS278K8sj58QCLMZIso5qG05+MdCdmXxuyVlfvI8h4bPsNOavVUauVCGxrg==
   dependencies:
     keyv "^3.1.0"
 
