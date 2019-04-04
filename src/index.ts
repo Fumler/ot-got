@@ -75,7 +75,6 @@ const logError = (span: Span, error: any) => {
     span.log({
       event: name,
       url: error.url,
-      gotOptions: error.gotOptions,
       eventObject: error.event,
     })
   }
