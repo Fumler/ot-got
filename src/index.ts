@@ -1,6 +1,5 @@
 import got, { mergeOptions } from 'got'
 import { globalTracer, Tags, Span, SpanOptions, Tracer, FORMAT_HTTP_HEADERS } from 'opentracing'
-import CacheableLookup from 'cacheable-lookup'
 import HttpAgent, { HttpsAgent, HttpOptions, HttpsOptions } from 'agentkeepalive'
 
 interface Options {
@@ -15,6 +14,9 @@ interface TracingOptions {
   closeParentSpan?: boolean
   injectHeaders?: boolean
 }
+
+// Create map for dns cache
+const dnsCacheMap = new Map()
 
 /**
  * Logs information about timing events related to a client http request to the given span
@@ -90,9 +92,6 @@ const logError = (span: Span, error: any) => {
   })
 }
 
-// Create a cache for DNS lookups
-const cacheable: CacheableLookup = new CacheableLookup()
-
 /**
  * Wraps a got call in an opentracing span, custom options defined as an interface.
  * The rest of the possible options can be found in the got documentation: https://github.com/sindresorhus/got
@@ -135,8 +134,7 @@ const otGot = (url: string, opts: Options = {}) => {
     headers: {
       ...opts.headers,
     },
-    // Use the dns cache we created earlier
-    lookup: cacheable.lookup,
+    dnsCache: opts.dnsCache || dnsCacheMap,
     hooks: {
       ...(opts.hooks || {}),
       // If we have to retry the requests, we should log it so we can see potential issues
