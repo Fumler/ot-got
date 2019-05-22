@@ -138,10 +138,13 @@ const otGot = (url: string, opts: Options = {}) => {
     // Use the dns cache we created earlier
     lookup: cacheable.lookup,
     hooks: {
+      ...(opts.hooks || {}),
       // If we have to retry the requests, we should log it so we can see potential issues
       // ¯\_(ツ)_/¯ not sure if we should tag the span as en error at this point
       // The request might succeed, but there might still be an issue in the stack
       beforeRetry: [
+        // Pass in any existing hooks
+        ...(opts.hooks && opts.hooks.beforeRetry ? opts.hooks.beforeRetry : []),
         (options: Options, error: any, retryCount: number) => {
           options.tracingOptions.span.log({
             ['http.retry_count']: retryCount,

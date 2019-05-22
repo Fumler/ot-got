@@ -168,6 +168,44 @@ test('logs retries', async t => {
   t.truthy(scope.isDone())
 })
 
+test('calls passed in beforeRetry hooks and predefined hook', async t => {
+  const scope = nock('https://whg.no')
+    .get('/error')
+    .times(3)
+    .reply(500, 'Internal Server Error')
+
+  const tracer = new MockTracer()
+  const parent = tracer.startSpan('parent_span')
+  let retries = 0
+  await t.throwsAsync(
+    otGot('https://whg.no/error', {
+      tracingOptions: {
+        parentSpan: parent,
+        tracer,
+      },
+      retry: 2,
+      hooks: {
+        beforeRetry: [
+          (options, error, retryCount) => {
+            retries = retryCount
+          },
+        ],
+      },
+    }),
+  )
+  const report = tracer.report()
+  let loggedRetries = 0
+
+  report.spans[1]['_logs'].forEach(log => {
+    Object.keys(log.fields).forEach(key => {
+      if (key === 'http.retry_count') loggedRetries += 1
+    })
+  })
+  t.is(loggedRetries, 2)
+  t.is(retries, 2)
+  t.truthy(scope.isDone())
+})
+
 test('does not finish parent span', async t => {
   const scope = nock('https://whg.no')
     .get('/')
