@@ -188,7 +188,7 @@ test('calls passed in beforeRetry hooks and predefined hook', async t => {
       hooks: {
         beforeRetry: [
           (options, error, retryCount) => {
-            retries = retryCount
+            retries++
           },
         ],
       },
