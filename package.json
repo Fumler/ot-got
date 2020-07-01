@@ -55,7 +55,7 @@
     "eslint": "^5.14.1",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.0.1",
-    "nock": "^10.0.6",
+    "nock": "^13.0.1",
     "np": "^4.0.2",
     "nyc": "^13.3.0",
     "opentracing": "^0.14.3",
