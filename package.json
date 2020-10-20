@@ -43,7 +43,7 @@
   ],
   "dependencies": {
     "agentkeepalive": "^4.0.2",
-    "got": "^9.6.0"
+    "got": "^11.8.0"
   },
   "devDependencies": {
     "@types/node": "^12.12.14",
